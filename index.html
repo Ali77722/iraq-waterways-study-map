@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#092d3d">
+<meta name="description" content="أطلس تفاعلي لموارد العراق المائية: دجلة والفرات والروافد والأهوار ومشاريع السيطرة والخزن، مخصص لمراجعة الاجتماعيات للثالث المتوسط.">
+<title>أطلس الرافدين | خريطة العراق التفاعلية</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23092d3d'/%3E%3Cpath d='M25 12 C72 28 22 43 62 57 S43 80 76 90' fill='none' stroke='%2354d7d0' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root{--ink:#102d38;--muted:#637d86;--deep:#092d3d;--deep2:#12495a;--teal:#19a7a0;--aqua:#54d7d0;--paper:#f3f7f6;--line:#dce7e5;--white:#fff;--gold:#efb64e;--blue:#298ee6;--violet:#8167d5;--green:#299b75;--shadow:0 12px 30px rgba(8,42,54,.09)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Tahoma,"Arial",sans-serif;color:var(--ink);background:var(--paper)}
+button,input{font:inherit}
+button{cursor:pointer}
+a{color:#087f92;text-decoration:none}
+.topbar{background:linear-gradient(115deg,#082a39 0%,#0e4351 70%,#17636a 100%);color:#fff;padding:18px clamp(14px,3vw,34px);box-shadow:0 3px 22px #0b35421c;position:relative;z-index:500}
+.brandline{display:flex;align-items:center;gap:13px;max-width:1600px;margin:auto}
+.logo{width:46px;height:46px;display:grid;place-items:center;border-radius:15px;background:#ffffff14;border:1px solid #ffffff2b;font-size:25px;flex-shrink:0}
+.brandtext{min-width:0;flex:1}
+.kicker{font-size:11px;letter-spacing:.4px;color:#a6e9e4;margin-bottom:4px}
+h1{font-size:clamp(19px,2.6vw,29px);line-height:1.25;margin:0;font-weight:800}
+.subtitle{font-size:12px;color:#c6dcdf;margin-top:6px;line-height:1.7}
+.top-actions{display:flex;align-items:center;gap:8px}
+.top-pill{border:1px solid #ffffff38;background:#ffffff12;color:white;border-radius:999px;padding:9px 12px;font-size:12px;white-space:nowrap}
+.shell{max-width:1600px;margin:0 auto;padding:17px;display:grid;grid-template-columns:minmax(0,1fr) 365px;gap:16px;align-items:stretch}
+.mapcard,.panel{background:var(--white);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.mapcard{min-width:0;display:flex;flex-direction:column}
+.maphead{padding:12px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.maphead strong{font-size:14px}
+.maphead .hint{color:var(--muted);font-size:11px;flex:1;min-width:130px}
+.map-tools{display:flex;gap:6px;flex-wrap:wrap}
+.smallbtn{background:#f4f8f7;border:1px solid #d8e7e4;border-radius:10px;padding:8px 10px;color:#24505b;font-size:11px;transition:.15s}
+.smallbtn:hover{background:#e5f4f1;border-color:#9bcfc7}
+.smallbtn.primary{background:var(--deep);border-color:var(--deep);color:#fff}
+#map{height:min(75vh,830px);min-height:560px;width:100%;background:#e7efed}
+.mapfooter{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);line-height:1.7}
+.mapfooter span{display:flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--teal)}
+.dot.eup{background:var(--blue)}.dot.dam{background:var(--gold)}.dot.marsh{background:var(--green)}.dot.city{background:var(--violet)}
+.sidebar{display:flex;flex-direction:column;gap:13px;min-width:0}
+.panel{padding:15px}
+.paneltitle{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px;font-size:14px;font-weight:800}
+.paneltitle small{font-size:10px;font-weight:400;color:var(--muted)}
+.searchbox{display:flex;align-items:center;gap:8px;background:#f5f8f7;border:1px solid #dbe6e4;border-radius:12px;padding:0 11px;margin-bottom:10px}
+.searchbox span{font-size:15px;color:var(--muted)}
+.searchbox input{min-width:0;width:100%;border:0;outline:0;background:transparent;padding:12px 0;color:var(--ink);font-size:12px}
+.results{display:flex;flex-direction:column;gap:5px;max-height:195px;overflow:auto}
+.result-item{display:flex;align-items:center;gap:9px;width:100%;text-align:right;background:#fff;border:1px solid transparent;border-radius:10px;padding:8px 9px;color:var(--ink)}
+.result-item:hover{background:#f2f9f7;border-color:#d6ebe6}
+.result-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:#e7f4f1;font-size:15px;flex-shrink:0}
+.result-text{min-width:0;flex:1}
+.result-name{font-size:12px;font-weight:700;display:block}
+.result-sub{font-size:10px;color:var(--muted);margin-top:4px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{font-size:11px;color:var(--muted);padding:10px}
+.layers{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.layer-option{display:flex;gap:8px;align-items:center;min-width:0;border:1px solid var(--line);padding:10px 9px;border-radius:12px;font-size:11px;background:#fff;line-height:1.5}
+.layer-option input{accent-color:#138a8a;width:16px;height:16px;flex-shrink:0}
+.swatch{width:11px;height:11px;border-radius:4px;flex-shrink:0}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.stat{border:1px solid var(--line);border-radius:13px;padding:10px 5px;text-align:center;background:#fbfdfc}
+.stat strong{display:block;font-size:18px;color:#0e6d77}
+.stat span{display:block;font-size:9px;color:var(--muted);margin-top:5px;line-height:1.45}
+.factbox{border-radius:13px;background:linear-gradient(135deg,#edf8f6,#f8fbfa);padding:12px;border:1px solid #dcefe9;font-size:11px;line-height:1.9}
+.factbox strong{display:block;font-size:13px;margin-bottom:4px}
+.quiz-question{font-size:12px;line-height:1.8;margin:0 0 10px}
+.quiz-answers{display:grid;gap:6px}
+.answer{width:100%;text-align:right;padding:9px 10px;border:1px solid #dde8e6;background:#fff;border-radius:10px;font-size:11px;color:var(--ink)}
+.answer:hover{background:#f3f9f7;border-color:#94cfc4}
+.answer.correct{background:#e4f7ef;border-color:#3ba97f;color:#126447}
+.answer.wrong{background:#fff0eb;border-color:#e29a81;color:#994124}
+.quiz-feedback{margin-top:9px;font-size:11px;line-height:1.7;color:var(--muted);min-height:18px}
+.quiz-next{margin-top:9px}
+.note{font-size:10px;color:var(--muted);line-height:1.9;margin:0}
+.note strong{color:#3d5f69}
+footer{max-width:1600px;margin:0 auto;padding:0 18px 20px;color:#6c8288;font-size:10px;line-height:1.9}
+footer .footinner{border-top:1px solid #dbe5e3;padding-top:12px;display:flex;gap:9px;justify-content:space-between;flex-wrap:wrap}
+.leaflet-popup-content-wrapper{border-radius:13px!important}
+.leaflet-popup-content{font-family:Tahoma,Arial,sans-serif;direction:rtl;text-align:right;line-height:1.8;font-size:12px;margin:12px 14px!important}
+.popup-title{font-size:14px;font-weight:800;color:#123b49;margin-bottom:4px}
+.popup-tag{display:inline-block;background:#e8f6f3;color:#167c79;border-radius:999px;padding:2px 8px;font-size:10px;margin-bottom:5px}
+.popup-text{color:#435e66}
+.river-label{background:#123c4ddd!important;border:1px solid #ffffff9a!important;color:#fff!important;border-radius:8px!important;font-family:Tahoma,Arial,sans-serif;font-size:11px;padding:3px 7px!important;box-shadow:0 2px 8px #0002}
+.river-label:before{display:none}
+.legend-key{display:inline-block;width:18px;height:4px;border-radius:4px;vertical-align:middle}
+@media(max-width:1050px){.shell{grid-template-columns:minmax(0,1fr) 320px}.shell{padding:12px;gap:12px}.panel{padding:12px}}
+@media(max-width:760px){.topbar{padding:13px 14px}.brandline{align-items:flex-start}.logo{width:40px;height:40px;border-radius:13px}.top-actions{display:none}.subtitle{font-size:11px}.shell{display:flex;flex-direction:column;padding:10px;gap:10px}.mapcard{order:0}.sidebar{order:1}.maphead{padding:10px 11px}.maphead .hint{display:none}#map{height:58vh;min-height:420px;max-height:650px}.mapfooter{font-size:9px}.sidebar{display:grid;grid-template-columns:1fr;gap:10px}.results{max-height:210px}.layers{grid-template-columns:1fr 1fr}.panel{border-radius:16px}footer{padding:0 12px 18px}}
+@media(max-width:390px){h1{font-size:18px}.layers{grid-template-columns:1fr}.stats{gap:5px}.stat strong{font-size:16px}.map-tools .smallbtn{padding:7px 8px}.maphead strong{font-size:12px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brandline">
+    <div class="logo" aria-hidden="true">🌊</div>
+    <div class="brandtext">
+      <div class="kicker">أطلس دراسي تفاعلي · الاجتماعيات · الثالث المتوسط</div>
+      <h1>خريطة العراق التفاعلية — الموارد المائية</h1>
+      <div class="subtitle">تتبّع دجلة والفرات وروافدهما، واكتشف الأهوار والسدود والمدن من خلال خريطة واحدة.</div>
+    </div>
+    <div class="top-actions"><span class="top-pill">نسخة تعليمية</span><span class="top-pill">تعمل على الهاتف والكمبيوتر</span></div>
+  </div>
+</header>
+
+<main class="shell">
+  <section class="mapcard" aria-label="الخريطة التفاعلية">
+    <div class="maphead">
+      <strong>الخريطة الحيّة</strong>
+      <span class="hint">اضغط على أي نقطة أو مجرى نهري لعرض المعلومة</span>
+      <div class="map-tools">
+        <button class="smallbtn" id="resetView">إظهار العراق كاملًا</button>
+        <button class="smallbtn" id="showTigris">تتبّع دجلة</button>
+        <button class="smallbtn" id="showEuphrates">تتبّع الفرات</button>
+      </div>
+    </div>
+    <div id="map" role="application" aria-label="خريطة تفاعلية للعراق ومصادر المياه"></div>
+    <div class="mapfooter">
+      <span><i class="dot"></i><span class="legend-key" style="background:#159eaa"></span> دجلة</span>
+      <span><i class="dot eup"></i><span class="legend-key" style="background:#298ee6"></span> الفرات</span>
+      <span><i class="dot dam"></i> السدود والسدات</span>
+      <span><i class="dot marsh"></i> الأهوار</span>
+      <span><i class="dot city"></i> المدن والمواقع</span>
+      <span>الخريطة الأساسية: © OpenStreetMap contributors</span>
+    </div>
+  </section>
+
+  <aside class="sidebar" aria-label="أدوات الدراسة">
+    <section class="panel">
+      <h2 class="paneltitle">ابحث عن موقع <small id="resultCount">—</small></h2>
+      <label class="searchbox"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="مثال: الزاب الصغير، سد حديثة، هور الحمار..." autocomplete="off" aria-label="ابحث باسم نهر أو مدينة أو سد"></label>
+      <div class="results" id="resultsList"><div class="empty">جارٍ تجهيز قائمة المواقع…</div></div>
+    </section>
+
+    <section class="panel">
+      <h2 class="paneltitle">طبقات الخريطة <small>إظهار / إخفاء</small></h2>
+      <div class="layers">
+        <label class="layer-option"><input type="checkbox" data-layer="main" checked><span class="swatch" style="background:#159eaa"></span> دجلة والفرات وشط العرب</label>
+        <label class="layer-option"><input type="checkbox" data-layer="tributaries" checked><span class="swatch" style="background:#8167d5"></span> الروافد</label>
+        <label class="layer-option"><input type="checkbox" data-layer="branches" checked><span class="swatch" style="background:#298ee6"></span> الفروع والجداول</label>
+        <label class="layer-option"><input type="checkbox" data-layer="dams" checked><span class="swatch" style="background:#efb64e"></span> السدود والسدات</label>
+        <label class="layer-option"><input type="checkbox" data-layer="lakes" checked><span class="swatch" style="background:#7bbee9"></span> البحيرات والخزانات</label>
+        <label class="layer-option"><input type="checkbox" data-layer="marshes" checked><span class="swatch" style="background:#299b75"></span> الأهوار والمستنقعات</label>
+        <label class="layer-option"><input type="checkbox" data-layer="cities" checked><span class="swatch" style="background:#8065cc"></span> المدن المهمة</label>
+        <label class="layer-option"><input type="checkbox" data-layer="sources" checked><span class="swatch" style="background:#e07b54"></span> المنابع ونقاط الالتقاء</label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="paneltitle">أرقام مهمّة من الكتاب</h2>
+      <div class="stats">
+        <div class="stat"><strong>1900 كم</strong><span>طول دجلة التقريبي كما ورد في الكتاب</span></div>
+        <div class="stat"><strong>2940 كم</strong><span>طول الفرات من منابعه إلى مصبه المذكور في الكتاب</span></div>
+        <div class="stat"><strong>190 كم</strong><span>طول شط العرب كما ورد في الكتاب</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="paneltitle">معلومة الموقع <small>تتغير عند الاختيار</small></h2>
+      <div class="factbox" id="factBox"><strong>ابدأ من الخريطة</strong>اضغط على نهر أو مدينة أو سد، أو اختر موقعًا من قائمة البحث، لعرض وظيفته ومعلومة تساعدك في المراجعة.</div>
+    </section>
+
+    <section class="panel">
+      <h2 class="paneltitle">اختبر نفسك <small id="quizProgress">1 / 5</small></h2>
+      <p class="quiz-question" id="quizQuestion">جارٍ تجهيز السؤال…</p>
+      <div class="quiz-answers" id="quizAnswers"></div>
+      <div class="quiz-feedback" id="quizFeedback" aria-live="polite"></div>
+      <button class="smallbtn primary quiz-next" id="quizNext" hidden>السؤال التالي ←</button>
+    </section>
+
+    <section class="panel">
+      <h2 class="paneltitle">عن الخريطة</h2>
+      <p class="note">أُعدّت للمراجعة المدرسية اعتمادًا على موضوع <strong>الموارد المائية</strong> في كتاب الاجتماعيات للثالث المتوسط (طبعة 2025/1447هـ، الصفحات المطبوعة 30–41 تقريبًا). مسارات الأنهار والفروع الموضّحة فوق الخريطة <strong>تقريبية ومبسّطة للتعلّم</strong>؛ قد تختلف عن المجرى الدقيق على الأرض. أسماء المواقع والشرح الدراسي أهم من استخدام الخريطة للملاحة.</p>
+    </section>
+  </aside>
+</main>
+
+<footer><div class="footinner"><span>إعداد تعليمي مستقل — ليس موقعًا رسميًا لوزارة التربية.</span><span>الخرائط الأساسية © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> · مكتبة الخرائط <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer">Leaflet</a></span></div></footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function(){
+'use strict';
+const map = L.map('map',{zoomControl:true,scrollWheelZoom:true,preferCanvas:true}).setView([33.05,44.35],6.2);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:19,
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+}).addTo(map);
+const layerNames={main:'الأنهار الرئيسة',tributaries:'الروافد',branches:'الفروع والجداول',dams:'السدود والسدات',lakes:'البحيرات والخزانات',marshes:'الأهوار',cities:'المدن',sources:'المنابع ومناطق الالتقاء'};
+const layers={main:L.layerGroup().addTo(map),tributaries:L.layerGroup().addTo(map),branches:L.layerGroup().addTo(map),dams:L.layerGroup().addTo(map),lakes:L.layerGroup().addTo(map),marshes:L.layerGroup().addTo(map),cities:L.layerGroup().addTo(map),sources:L.layerGroup().addTo(map)};
+const markerIndex={};
+let activeItem=null;
+function popupContent(item){
+  return '<div class="popup-title">'+item.name+'</div><div class="popup-tag">'+(item.tag||layerNames[item.group]||'موقع جغرافي')+'</div><div class="popup-text">'+item.desc+'</div>'+(item.book?'<div style="margin-top:7px;color:#637d86;font-size:10px">من الكتاب: '+item.book+'</div>':'');
+}
+function setFact(item){
+  activeItem=item;
+  document.getElementById('factBox').innerHTML='<strong>'+item.icon+' '+item.name+'</strong>'+item.desc+(item.book?'<div style="border-top:1px solid #dce9e6;margin-top:7px;padding-top:7px;color:#617a82;font-size:10px">مرجع دراسي: '+item.book+'</div>':'');
+}
+function addMarker(item){
+  const colors={cities:'#8065cc',dams:'#efad3d',lakes:'#52a9d8',marshes:'#299b75',sources:'#e07b54',tributaries:'#8167d5'};
+  const color=colors[item.group]||'#159eaa';
+  const marker=L.circleMarker([item.lat,item.lng],{radius:item.group==='cities'?5.5:6.5,color:'#fff',weight:2,fillColor:color,fillOpacity:.98});
+  marker.bindPopup(popupContent(item),{maxWidth:270});
+  marker.on('click',function(){setFact(item);});
+  marker.addTo(layers[item.group]);
+  markerIndex[item.id]=marker;
+}
+function line(coords,group,color,weight,dash){
+  const options={color:color,weight:weight,opacity:.9,lineCap:'round',lineJoin:'round'};
+  if(dash) options.dashArray=dash;
+  L.polyline(coords,{color:'#fff',weight:weight+4,opacity:.78,lineCap:'round',lineJoin:'round'}).addTo(layers[group]);
+  const l=L.polyline(coords,options).addTo(layers[group]);
+  l.on('click',function(){setFact({name:lineNames[group]||layerNames[group],icon:'🌊',desc:lineDescriptions[group]||'هذا مجرى مائي ضمن طبقة الخريطة التعليمية.',group:group,book:'موضوع الموارد المائية'});});
+  return l;
+}
+const lineNames={main:'الأنهار الرئيسة في العراق',tributaries:'روافد دجلة',branches:'فروع وجداول الري'};
+const lineDescriptions={
+ main:'يرتبط نهر دجلة والفرات بمنظومة مائية واحدة في جنوب العراق؛ يلتقيان في منطقة القرنة، ثم يجري المجرى المشترك باسم شط العرب إلى الخليج العربي.',
+ tributaries:'تصب عدة روافد في دجلة من الشرق والشمال الشرقي، من أهمها الزاب الكبير والزاب الصغير والعظيم وديالى، إضافة إلى الخابور المذكور في الكتاب.',
+ branches:'تظهر هنا بعض الفروع والجداول التي توزّع المياه على الأراضي الزراعية، مثل الغراف والدجيلة وفروع الفرات.'
+};
+const tigris=[
+ [38.45,40.25],[38.15,40.75],[37.75,41.30],[37.25,42.05],[37.10,42.45],
+ [36.75,42.70],[36.34,43.12],[36.05,43.45],[35.62,43.65],[34.95,43.76],
+ [34.60,43.68],[34.20,43.88],[33.85,44.10],[33.31,44.36],[32.92,44.55],
+ [32.50,45.82],[32.20,46.15],[31.84,47.15],[31.45,47.30],[31.02,47.43]
+];
+const euphrates=[
+ [39.75,39.50],[39.30,39.65],[38.80,38.75],[37.75,38.05],[36.82,38.02],
+ [36.30,38.60],[35.95,39.00],[35.60,39.70],[35.33,40.15],[34.95,40.45],
+ [34.45,40.92],[34.38,41.09],[34.47,41.95],[34.13,42.38],[33.98,42.65],
+ [33.64,42.83],[33.42,43.30],[33.35,43.78],[33.10,43.62],[32.73,44.28],
+ [32.48,44.43],[32.20,44.45],[31.99,44.92],[31.55,45.20],[31.31,45.28],
+ [31.08,45.75],[31.05,46.26],[31.02,46.85],[31.02,47.43]
+];
+const shattArab=[[31.02,47.43],[30.86,47.55],[30.68,47.70],[30.51,47.81],[30.25,48.05],[30.02,48.35],[29.92,48.57]];
+line(tigris,'main','#159eaa',5);
+line(euphrates,'main','#298ee6',5);
+line(shattArab,'main','#0b7189',4);
+L.polyline([[36.7,43.22],[36.55,43.25],[36.34,43.12]],{color:'#8167d5',weight:3.4,opacity:.92}).addTo(layers.tributaries);
+L.polyline([[37.15,42.4],[36.9,42.55],[36.65,42.80],[36.34,43.12]],{color:'#8167d5',weight:3.2,opacity:.92}).addTo(layers.tributaries);
+L.polyline([[36.20,45.0],[35.85,45.05],[35.45,44.9],[34.95,44.2],[34.60,43.68]],{color:'#8167d5',weight:3.4,opacity:.92}).addTo(layers.tributaries);
+L.polyline([[35.10,44.80],[34.85,44.60],[34.55,44.45],[34.20,44.25]],{color:'#8167d5',weight:3.2,opacity:.92}).addTo(layers.tributaries);
+L.polyline([[35.75,46.25],[35.30,45.95],[34.90,45.7],[34.50,45.4],[33.95,45.1],[33.45,44.8],[33.31,44.36]],{color:'#8167d5',weight:3.4,opacity:.92}).addTo(layers.tributaries);
+L.polyline([[32.50,48.55],[32.05,48.35],[31.70,48.18],[31.20,47.98],[30.70,47.82]],{color:'#8167d5',weight:3,opacity:.92,dashArray:'7 5'}).addTo(layers.tributaries);
+L.polyline([[32.50,45.82],[32.20,46.08],[31.80,46.18],[31.35,46.23],[31.05,46.26]],{color:'#298ee6',weight:3.3,opacity:.9}).addTo(layers.branches);
+L.polyline([[32.50,45.82],[32.30,45.89],[32.08,45.98],[31.80,46.10]],{color:'#298ee6',weight:2.8,opacity:.9,dashArray:'7 4'}).addTo(layers.branches);
+L.polyline([[31.84,47.15],[31.70,47.05],[31.48,46.95],[31.20,46.85]],{color:'#298ee6',weight:2.8,opacity:.85,dashArray:'7 4'}).addTo(layers.branches);
+L.polyline([[32.73,44.28],[32.58,44.43],[32.32,44.52],[32.10,44.64],[31.70,44.90],[31.31,45.28]],{color:'#298ee6',weight:3.2,opacity:.92}).addTo(layers.branches);
+L.polyline([[32.73,44.28],[32.48,44.40],[32.20,44.44],[31.99,44.92]],{color:'#298ee6',weight:2.8,opacity:.88,dashArray:'7 4'}).addTo(layers.branches);
+
+const places=[
+{id:'mosul',name:'الموصل',tag:'مدينة على دجلة',group:'cities',icon:'🏙️',lat:36.34,lng:43.12,desc:'تقع الموصل على نهر دجلة في شمال العراق. يمر دجلة بعدها باتجاه الجنوب عبر تكريت وسامراء ثم بغداد.',book:'موضوع نهر دجلة'},
+{id:'baghdad',name:'بغداد',tag:'العاصمة — دجلة',group:'cities',icon:'🏙️',lat:33.31,lng:44.36,desc:'تقع بغداد على نهر دجلة في وسط العراق، ويُعد دجلة محورًا مهمًا لتوزيع المياه في المدن والأراضي القريبة منه.',book:'موضوع نهر دجلة'},
+{id:'tikrit',name:'تكريت',tag:'مدينة على دجلة',group:'cities',icon:'🏙️',lat:34.61,lng:43.68,desc:'تقع تكريت في محافظة صلاح الدين على مجرى دجلة شمال بغداد.',book:'موضوع نهر دجلة'},
+{id:'samarra',name:'سامراء',tag:'سدة سامراء',group:'cities',icon:'🏙️',lat:34.20,lng:43.88,desc:'تقع سدة سامراء على دجلة في محافظة صلاح الدين، ومنها تُحوّل المياه إلى منخفض الثرثار بحسب الكتاب.',book:'ص 39–40'},
+{id:'kut',name:'الكوت',tag:'سدة الكوت',group:'cities',icon:'🏙️',lat:32.51,lng:45.82,desc:'عند مدينة الكوت تتفرع من دجلة جداول منها الغراف والدجيلة، وتوجد فيها سدة الكوت.',book:'ص 32 و40'},
+{id:'amarah',name:'العمارة',tag:'دجلة والأهوار',group:'cities',icon:'🏙️',lat:31.84,lng:47.15,desc:'يمر دجلة بمدينة العمارة، وتتفرع منه جداول تتجه إلى الأراضي والأهوار في المنطقة.',book:'ص 32'},
+{id:'qurna',name:'القرنة',tag:'ملتقى دجلة والفرات',group:'sources',icon:'🔀',lat:31.02,lng:47.43,desc:'منطقة التقاء مجرى دجلة والفرات، ومنها يبدأ شط العرب وفق شرح الكتاب المدرسي.',book:'ص 35–36'},
+{id:'basra',name:'البصرة',tag:'شط العرب',group:'cities',icon:'🏙️',lat:30.51,lng:47.81,desc:'تقع البصرة على شط العرب. يتأثر النهر قرب المصب بظاهرتي المد والجزر في الخليج العربي.',book:'ص 36'},
+{id:'faw',name:'الفاو',tag:'مصب شط العرب',group:'sources',icon:'🌊',lat:29.92,lng:48.57,desc:'يمتد شط العرب باتجاه الخليج العربي جنوبًا حتى منطقة المصب.',book:'ص 36'},
+{id:'qaem',name:'القائم / حصيبة',tag:'دخول الفرات إلى العراق',group:'cities',icon:'🏙️',lat:34.38,lng:41.09,desc:'يدخل نهر الفرات الأراضي العراقية قرب حصيبة في منطقة القائم بعد مروره في سوريا.',book:'ص 33'},
+{id:'haditha',name:'حديثة',tag:'سد وبحيرة حديثة',group:'cities',icon:'🏙️',lat:34.13,lng:42.38,desc:'تقع مدينة حديثة على الفرات، ويقع سد وبحيرة حديثة على النهر قرب المدينة.',book:'ص 40'},
+{id:'hit',name:'هيت',tag:'مدينة على الفرات',group:'cities',icon:'🏙️',lat:33.64,lng:42.83,desc:'تقع هيت على الفرات في محافظة الأنبار، ويشير الكتاب إلى وجود النواعير على مجرى النهر في المنطقة.',book:'ص 33–34'},
+{id:'ramadi',name:'الرمادي',tag:'سدة الرمادي وبحيرة الحبانية',group:'cities',icon:'🏙️',lat:33.42,lng:43.30,desc:'يدخل الفرات السهل الرسوبي قرب الرمادي، وترتبط بالمنطقة سدة الرمادي وبحيرة الحبانية.',book:'ص 34 و40'},
+{id:'fallujah',name:'الفلوجة',tag:'الفرات',group:'cities',icon:'🏙️',lat:33.35,lng:43.78,desc:'يقترب الفرات من دجلة قرب الفلوجة، وتوجد على الفرات جداول ري عديدة في هذه المنطقة.',book:'ص 34'},
+{id:'hilla',name:'الحلة',tag:'فروع الفرات',group:'cities',icon:'🏙️',lat:32.48,lng:44.43,desc:'تقع الحلة ضمن منطقة تفرعات الفرات في السهل الرسوبي، وترتبط المنطقة بفروع الري في وسط العراق.',book:'موضوع نهر الفرات'},
+{id:'kufa',name:'الكوفة',tag:'سدة الكوفة',group:'cities',icon:'🏙️',lat:32.03,lng:44.41,desc:'تقع سدة الكوفة على نهر الفرات ضمن محافظة النجف الأشرف بحسب الكتاب.',book:'ص 40'},
+{id:'samawa',name:'السماوة',tag:'الفرات',group:'cities',icon:'🏙️',lat:31.31,lng:45.28,desc:'يمر الفرات بالسماوة ويتجه بعدها نحو مناطق سوق الشيوخ والأهوار الجنوبية.',book:'ص 35'},
+{id:'nasiriyah',name:'الناصرية',tag:'هور الحمار والفرات',group:'cities',icon:'🏙️',lat:31.05,lng:46.26,desc:'تقع الناصرية بالقرب من منظومة الأهوار الجنوبية، ولا سيما هور الحمار.',book:'ص 35 و37'},
+{id:'zabk',name:'الزاب الكبير',tag:'رافد دجلة',group:'tributaries',icon:'↘️',lat:36.62,lng:43.35,desc:'ينبع الزاب الكبير من الأراضي التركية، ويعد من أهم روافد دجلة، ويسهم بنحو 33% من مياهه وفق الكتاب.',book:'ص 31'},
+{id:'zabs',name:'الزاب الصغير',tag:'رافد دجلة',group:'tributaries',icon:'↘️',lat:34.72,lng:44.55,desc:'ينبع الزاب الصغير من الأراضي الإيرانية، ويصب في دجلة جنوب منطقة الشرقاط، ويسهم بنحو 17% من مياهه بحسب الكتاب.',book:'ص 31'},
+{id:'adh',name:'نهر العظيم',tag:'رافد دجلة',group:'tributaries',icon:'↘️',lat:34.48,lng:44.56,desc:'رافد يصب في دجلة، ويذكر الكتاب أنه ينبع من داخل الأراضي العراقية.',book:'ص 31'},
+{id:'diyala',name:'نهر ديالى',tag:'رافد دجلة',group:'tributaries',icon:'↘️',lat:33.34,lng:44.70,desc:'من روافد دجلة المهمة، ويتكون من منبعين يذكرهما الكتاب باسم سيروان وتانجرو.',book:'ص 31'},
+{id:'khabur',name:'الخابور',tag:'رافد دجلة',group:'tributaries',icon:'↘️',lat:37.12,lng:42.44,desc:'يذكر الكتاب الخابور ضمن الروافد التي تصب في دجلة بعد دخوله الأراضي العراقية قرب فيشخابور.',book:'ص 31'},
+{id:'caroon',name:'نهر الكارون',tag:'رافد شط العرب',group:'tributaries',icon:'↘️',lat:31.15,lng:48.05,desc:'يجري نهر الكارون من الأراضي الإيرانية ويصب في شط العرب، بحسب الكتاب.',book:'ص 36'},
+{id:'fishkhabur',name:'فيشخابور',tag:'دخول دجلة إلى العراق',group:'sources',icon:'📍',lat:37.10,lng:42.45,desc:'يدخل نهر دجلة الأراضي العراقية عند قرية فيشخابور بعد جريانه من المرتفعات الواقعة جنوب شرق تركيا.',book:'ص 31'},
+{id:'eur-source',name:'منابع الفرات',tag:'تركيا',group:'sources',icon:'💧',lat:39.75,lng:39.50,desc:'ينبع الفرات من المرتفعات الشرقية في تركيا، ومن منابع أهمها فرات صو ومراد صو اللذان يلتقيان قرب كيبان.',book:'ص 33'},
+{id:'tigris-source',name:'منابع دجلة',tag:'جنوب شرق تركيا',group:'sources',icon:'💧',lat:38.45,lng:40.25,desc:'ينبع دجلة من المرتفعات الواقعة جنوب شرق تركيا، ويتكون من منابع متعددة قبل دخوله العراق.',book:'ص 30–31'},
+{id:'mosul-dam',name:'سد وبحيرة الموصل',tag:'مشروع سيطرة وخزن',group:'dams',icon:'🟠',lat:36.63,lng:42.82,desc:'يقع سد الموصل على دجلة، وتبعد البحيرة نحو 60 كم شمال مدينة الموصل وفق الكتاب.',book:'ص 39'},
+{id:'dukan',name:'سد وبحيرة دوكان',tag:'على الزاب الصغير',group:'dams',icon:'🟠',lat:35.95,lng:44.95,desc:'تقع بحيرة دوكان على رافد الزاب الصغير، وتبلغ سعتها الخزنية بحسب الكتاب 6.8 مليار م³.',book:'ص 40'},
+{id:'darbandikhan',name:'سد وبحيرة دربندخان',tag:'على نهر ديالى',group:'dams',icon:'🟠',lat:35.11,lng:45.74,desc:'تقع على رافد ديالى إلى الجنوب من السليمانية، وتبلغ سعتها الخزنية في الكتاب نحو 3.25 مليار م³.',book:'ص 40'},
+{id:'hemrin',name:'سد وبحيرة حمرين',tag:'على نهر ديالى',group:'dams',icon:'🟠',lat:34.20,lng:45.60,desc:'تقع بحيرة حمرين شمال شرق بغداد على رافد ديالى، وتبلغ سعتها الخزنية الواردة في الكتاب نحو 3.95 مليار م³.',book:'ص 40'},
+{id:'adhaim-dam',name:'سد العظيم',tag:'على رافد العظيم',group:'dams',icon:'🟠',lat:34.65,lng:44.80,desc:'يقع مشروع العظيم على رافد نهر العظيم، وتذكره قائمة مشاريع السيطرة والخزن في الكتاب.',book:'ص 40'},
+{id:'samarra-weir',name:'سدة سامراء',tag:'سدة على دجلة',group:'dams',icon:'🟠',lat:34.20,lng:43.86,desc:'تقع على دجلة في محافظة صلاح الدين، وتحوّل المياه إلى منخفض الثرثار.',book:'ص 39–40'},
+{id:'kut-weir',name:'سدة الكوت',tag:'سدة على دجلة',group:'dams',icon:'🟠',lat:32.50,lng:45.82,desc:'أنشئت على نهر دجلة في محافظة واسط، وتتفرع من المنطقة جداول ري مهمة.',book:'ص 32 و40'},
+{id:'amara-weir',name:'سدة العمارة',tag:'سدة على دجلة',group:'dams',icon:'🟠',lat:31.84,lng:47.15,desc:'تقع على نهر دجلة في محافظة ميسان بحسب الكتاب.',book:'ص 40'},
+{id:'haditha-dam',name:'سد وبحيرة حديثة',tag:'على الفرات',group:'dams',icon:'🟠',lat:34.19,lng:42.36,desc:'يقع سد حديثة على نهر الفرات قرب مدينة حديثة، وتبلغ السعة الخزنية المذكورة في الكتاب نحو 8 مليارات م³.',book:'ص 40'},
+{id:'habbaniya-weir',name:'بحيرة الحبانية',tag:'خزان مائي',group:'lakes',icon:'💧',lat:33.18,lng:43.47,desc:'تقع جنوب الرمادي وتستخدم لخزن المياه، وترتبط بالفرات عبر منظومة من السدات والنواظم والجداول.',book:'ص 40–41'},
+{id:'tharthar',name:'منخفض وبحيرة الثرثار',tag:'منخفض وخزان مائي',group:'lakes',icon:'💧',lat:33.85,lng:43.30,desc:'يقع منخفض الثرثار شمال غرب بغداد، وتحوّل المياه إليه من دجلة عن طريق سدة سامراء بحسب الكتاب.',book:'ص 39'},
+{id:'razaza',name:'بحيرة الرزازة',tag:'بحيرة طبيعية',group:'lakes',icon:'💧',lat:32.85,lng:43.60,desc:'بحيرة إلى الغرب من كربلاء، يذكرها الكتاب ضمن منظومة ارتباط المياه مع بحيرة الحبانية.',book:'ص 40'},
+{id:'hindiya-weir',name:'سدة الهندية',tag:'سدة على الفرات',group:'dams',icon:'🟠',lat:32.73,lng:44.28,desc:'تقع على نهر الفرات ضمن محافظة بابل بحسب الكتاب.',book:'ص 40'},
+{id:'kufa-weir',name:'سدة الكوفة',tag:'سدة على الفرات',group:'dams',icon:'🟠',lat:32.03,lng:44.41,desc:'تقع على نهر الفرات ضمن محافظة النجف الأشرف.',book:'ص 40'},
+{id:'hammar',name:'هور الحمار',tag:'من أهوار جنوب العراق',group:'marshes',icon:'🌾',lat:30.85,lng:46.85,desc:'يمتد بين محافظتي البصرة وذي قار، ويتصل به عدد من فروع الفرات. الأهوار مواضع منخفضة تتجمع فيها المياه بصورة مؤقتة أو دائمة.',book:'ص 35 و37'},
+{id:'central-marsh',name:'الأهوار الوسطى',tag:'أهوار القرنة',group:'marshes',icon:'🌾',lat:31.45,lng:47.35,desc:'تقع ضمن نطاق محافظات البصرة وميسان وذي قار، ويذكر الكتاب أنها تتغذى من دجلة عبر جدولي البتيرة والمجر الكبير.',book:'ص 37'},
+{id:'hawizeh',name:'هور الحويزة',tag:'هور جنوب شرق العراق',group:'marshes',icon:'🌾',lat:31.55,lng:47.65,desc:'يقع في القسم الجنوبي الشرقي من العراق ضمن محافظتي ميسان والبصرة.',book:'ص 37'},
+{id:'qarna-point',name:'منطقة القرنة',tag:'نقطة الالتقاء',group:'sources',icon:'🔀',lat:31.02,lng:47.43,desc:'تمثّل منطقة القرنة موضع التقاء مجرى دجلة بالفرات في الخريطة المدرسية، ثم يستمر المجرى باسم شط العرب.',book:'ص 35–36'}
+];
+places.forEach(addMarker);
+const uniquePlaces=places.filter(function(p,i){return places.findIndex(function(q){return q.id===p.id;})===i;});
+function addTextLabel(coords,textValue,color){
+  L.marker(coords,{interactive:false,keyboard:false,icon:L.divIcon({className:'river-label',html:textValue,iconSize:null,iconAnchor:[25,8]})}).addTo(layers.main);
+}
+addTextLabel([35.2,43.8],'دجلة','#159eaa');
+addTextLabel([32.6,43.9],'الفرات','#298ee6');
+addTextLabel([30.5,47.95],'شط العرب','#0b7189');
+function focusItem(item){
+  const marker=markerIndex[item.id];
+  map.flyTo([item.lat,item.lng],Math.max(map.getZoom(),8),{duration:.65});
+  if(marker) setTimeout(function(){marker.openPopup();setFact(item);},420);
+  else setFact(item);
+}
+function renderResults(){
+  const query=document.getElementById('searchInput').value.trim().toLocaleLowerCase('ar');
+  const filtered=uniquePlaces.filter(function(p){return !query || (p.name+' '+p.tag+' '+p.desc).toLocaleLowerCase('ar').includes(query);}).slice(0,24);
+  const box=document.getElementById('resultsList');
+  box.innerHTML='';
+  document.getElementById('resultCount').textContent=filtered.length+' موقع';
+  if(!filtered.length){box.innerHTML='<div class="empty">ما لكيت موقع بهذا الاسم. جرّب اسم نهر أو مدينة أقصر.</div>';return;}
+  filtered.forEach(function(p){
+    const btn=document.createElement('button');btn.type='button';btn.className='result-item';
+    const ico=document.createElement('span');ico.className='result-icon';ico.textContent=p.icon;
+    const txt=document.createElement('span');txt.className='result-text';
+    const name=document.createElement('span');name.className='result-name';name.textContent=p.name;
+    const sub=document.createElement('span');sub.className='result-sub';sub.textContent=p.tag;
+    txt.append(name,sub);btn.append(ico,txt);btn.addEventListener('click',function(){focusItem(p);});
+    box.appendChild(btn);
+  });
+}
+document.getElementById('searchInput').addEventListener('input',renderResults);
+document.querySelectorAll('[data-layer]').forEach(function(cb){
+  cb.addEventListener('change',function(){
+    const g=cb.dataset.layer;
+    if(cb.checked) layers[g].addTo(map); else map.removeLayer(layers[g]);
+  });
+});
+document.getElementById('resetView').addEventListener('click',function(){map.flyTo([33.05,44.35],6.2,{duration:.6});});
+function traceRoute(id){
+ const route=id==='tigris'?tigris:euphrates;
+ const name=id==='tigris'?'دجلة':'الفرات';
+ const sample=id==='tigris'?[0,4,6,10,12,13,15,17,19]:[0,4,6,8,11,13,15,17,20,23,25,27];
+ const points=sample.map(function(i){return route[Math.min(i,route.length-1)];});
+ let i=0;
+ function step(){if(i>=points.length)return;map.flyTo(points[i],Math.max(map.getZoom(),7),{duration:.55});i++;if(i<points.length)setTimeout(step,700);}
+ step();
+ setFact({name:'تتبّع مجرى نهر '+name,icon:'🌊',desc:id==='tigris'?'ابدأ من منابعه في جنوب شرق تركيا، ثم تابع دجلة عبر فيشخابور والموصل وتكريت وسامراء وبغداد والكوت والعمارة حتى القرنة.':'تابع الفرات من منابع تركيا، مرورًا بسوريا ثم القائم وحديثة وهيت والرمادي والفلوجة والحلة والسماوة والناصرية وصولًا إلى منظومة الأهوار والقرنة.',book:'ص 30–36'});
+}
+document.getElementById('showTigris').addEventListener('click',function(){if(!map.hasLayer(layers.main))layers.main.addTo(map);document.querySelector('[data-layer="main"]').checked=true;traceRoute('tigris');});
+document.getElementById('showEuphrates').addEventListener('click',function(){if(!map.hasLayer(layers.main))layers.main.addTo(map);document.querySelector('[data-layer="main"]').checked=true;traceRoute('euphrates');});
+renderResults();
+
+const quiz=[
+ {q:'أيُّ رافدٍ يذكر الكتاب أن منابعه تقع داخل الأراضي العراقية؟',a:['الزاب الكبير','نهر العظيم','الزاب الصغير','نهر الكارون'],correct:1,why:'نهر العظيم هو الرافد الذي يذكر الكتاب أن منابعه تقع داخل العراق.'},
+ {q:'أين يلتقي نهرا دجلة والفرات؟',a:['بغداد','الموصل','القرنة','حديثة'],correct:2,why:'يلتقي مجرى دجلة بالفرات عند القرنة، ثم يستمر المجرى باسم شط العرب.'},
+ {q:'على أي رافد تقع بحيرة دوكان وفق الكتاب؟',a:['الزاب الصغير','ديالى','العظيم','الخابور'],correct:0,why:'تقع بحيرة دوكان على رافد الزاب الصغير.'},
+ {q:'أيّ سد يقع على نهر الفرات قرب حديثة؟',a:['سد الموصل','سد حديثة','سد حمرين','سد دوكان'],correct:1,why:'سد وبحيرة حديثة يقعان على الفرات قرب مدينة حديثة.'},
+ {q:'أيّ نهر يصبّ في شط العرب من الأراضي الإيرانية؟',a:['نهر ديالى','الخابور','الزاب الكبير','نهر الكارون'],correct:3,why:'يصب نهر الكارون في شط العرب، ويجري من الأراضي الإيرانية.'}
+];
+let quizIndex=0,answered=false,score=0;
+const qEl=document.getElementById('quizQuestion'),aEl=document.getElementById('quizAnswers'),fEl=document.getElementById('quizFeedback'),nextEl=document.getElementById('quizNext'),progressEl=document.getElementById('quizProgress');
+function drawQuiz(){
+ const q=quiz[quizIndex];answered=false;progressEl.textContent=(quizIndex+1)+' / '+quiz.length;qEl.textContent=q.q;aEl.innerHTML='';fEl.textContent='';nextEl.hidden=true;nextEl.textContent=quizIndex===quiz.length-1?'إعادة الاختبار':'السؤال التالي ←';
+ q.a.forEach(function(answer,index){const b=document.createElement('button');b.type='button';b.className='answer';b.textContent=answer;b.addEventListener('click',function(){if(answered)return;answered=true;const ok=index===q.correct;if(ok){score++;b.classList.add('correct');fEl.textContent='صحيح! '+q.why;}else{b.classList.add('wrong');aEl.children[q.correct].classList.add('correct');fEl.textContent='مو هذي الإجابة. '+q.why;}Array.from(aEl.children).forEach(function(x){x.disabled=true;});nextEl.hidden=false;});aEl.appendChild(b);});
+}
+nextEl.addEventListener('click',function(){if(quizIndex===quiz.length-1){quizIndex=0;score=0;}else quizIndex++;drawQuiz();if(quizIndex===0)document.getElementById('quizProgress').title='ابدأ اختبارًا جديدًا';});
+drawQuiz();
+
+setFact({name:'أطلس الرافدين',icon:'🌊',desc:'استخدم مربعات الطبقات لعرض ما تحتاجه فقط. ابدأ بتتبّع دجلة والفرات، ثم شغّل الروافد ومشاريع السيطرة والخزن والأهوار. اضغط على أي علامة لرؤية شرح مختصر ومرجع الصفحة من الكتاب.',book:'الاجتماعيات للثالث المتوسط، موضوع الموارد المائية'});
+})();
+</script>
+</body>
+</html>
